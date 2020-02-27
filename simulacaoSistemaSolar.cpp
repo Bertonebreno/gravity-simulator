@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "matplotlibcpp.h"
+#include <opencv2/opencv.hpp>
 
-namespace plt = matplotlibcpp;
+//compile with g++ -o simulacao simulacaoSistemaSolar.cpp `pkg-config opencv --cflags --libs`
+
+using namespace cv;
+using namespace std;
 
 double G = 1;
 double gForce(double mass1, double mass2, double distance){
@@ -13,59 +16,45 @@ double gForce(double mass1, double mass2, double distance){
 int main(){
 	double position[5][2];
 	double velocity[5][2];
-	double mass[5];
-
-	std::vector<double> body1AllX, body1AllY, body2AllX, body2AllY, body3AllX, body3AllY, body4AllX, body4AllY, body5AllX, body5AllY;
-	plt::figure_size(640, 640);
-
-	double timeDiff = 0.0001;
+	long mass[5];
 
 
-	mass[0] = 10;
-	position[0][0] = -10;
-	position[0][1] = 0;
+	double timeDiff = 0.00001;
+
+	mass[0] = 42875000e+4;
+	position[0][0] = 400;
+	position[0][1] = 400;
 	velocity[0][0] = 0;
-	velocity[0][1] = 100;
+	velocity[0][1] = 0;
 
 
-	mass[1] = 10;
-	position[1][0] = 100;
-	position[1][1] = 0;
+	mass[1] = 1e+5;
+	position[1][0] = 50;
+	position[1][1] = 400;
 	velocity[1][0] = 0;
-	velocity[1][1] = 31.622776601684f;
+	velocity[1][1] = 35000;
 
 
-	mass[2] = 10;	
-	position[2][0] = -50;
-	position[2][1] = 0;
-	velocity[2][0] = 0;
-	velocity[2][1] = 44.72135954f;
+	mass[2] = 1;
+	position[2][0] = 50;
+	position[2][1] = 410;
+	velocity[2][0] = 100;
+	velocity[2][1] = 35000;
 
-	
-	mass[3] = 10;
-	position[3][0] = 0;
-	position[3][1] = 20;
-	velocity[3][0] = 70.7106781f;
-	velocity[3][1] = 0;
 
-	
-	mass[4] = 100000;
-	position[4][0] = 0;
-	position[4][1] = 0;
-	velocity[4][0] = 0;
-	velocity[4][1] = 0;
-
+	String windowName = "Window with Blank Image"; //Name of the window
+	namedWindow(windowName); // Create a window
 
 	int x = 1;
-	while(x<10000000000){
+	while(x){
 
-		for(int i = 0; i<5; i+=1){
+		for(int i = 0; i<3; i+=1){
 			double oldPosition[2];
 			oldPosition[0] = position[i][0];
 			oldPosition[1] = position[i][1];
 			position[i][0] += velocity[i][0]*timeDiff;
 			position[i][1] += velocity[i][1]*timeDiff;				
-			for(int j = i; j<5; j+=1){
+			for(int j = i; j<3; j+=1){
 				if(i!=j){
 					double deltaX = (oldPosition[0]-position[j][0]);
 					double deltaY = (oldPosition[1]-position[j][1]);
@@ -89,30 +78,16 @@ int main(){
 				}
 			}
 		}
-    body1AllX.push_back(position[0][0]); body1AllY.push_back(position[0][1]);
-    body2AllX.push_back(position[1][0]); body2AllY.push_back(position[1][1]);
-    body3AllX.push_back(position[2][0]); body3AllY.push_back(position[2][1]);
-    body4AllX.push_back(position[3][0]); body4AllY.push_back(position[3][1]);
-    body5AllX.push_back(position[4][0]); body5AllY.push_back(position[4][1]);
-    
-    printf("%lf\n", (((double)(x%1000))/1000));
-	if(x%1000==0){	
-		plt::clf();
-		plt::xlim(-110, 110);
-		plt::ylim(-110, 110);
-		plt::plot(body1AllX, body1AllY);
-		plt::plot(body2AllX, body2AllY);
-		plt::plot(body3AllX, body3AllY);
-		plt::plot(body4AllX, body4AllY);
-		plt::plot(body5AllX, body5AllY);
-		plt::pause(0.0000000000001);
-	}
-	x++;
+
+    Mat image(800, 800, CV_8UC3, Scalar(0, 0, 0));
+	circle(image, Point(position[0][0], position[0][1]), 15, Scalar(255, 255, 255),CV_FILLED, 8,0);
+	circle(image, Point(position[1][0], position[1][1]), 7, Scalar(255, 255, 255),CV_FILLED, 8,0);
+	circle(image, Point(position[2][0], position[2][1]), 2, Scalar(255, 255, 255),CV_FILLED, 8,0);
+	imshow(windowName, image); // Show our image inside the created window.
+	waitKey(1);
 	}
 	int pause;
-
 	scanf("%d", &pause);
-	// x = 0;
 	return 0;
 }
 
